@@ -1,0 +1,8 @@
+aws_region  = "us-east-1"
+bucket_name = "your-unique-bucket-name"
+tags = {
+  Project     = "s3-static-site"
+  Environment = "dev"
+  CostCenter  = "example"
+}
+use_localstack = true
