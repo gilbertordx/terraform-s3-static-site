@@ -55,3 +55,6 @@ Notes
 
 License
 MIT
+
+Site: https://gilbertordx.github.io/terraform-s3-static-site/
+
