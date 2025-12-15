@@ -35,5 +35,5 @@ localstack_data/
 __pycache__/
 *.pyc
 
-# Personal notes (not for repo)
-.github
+# Instructions
+copilot-Instructions.md
