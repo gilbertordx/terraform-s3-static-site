@@ -41,17 +41,15 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: ${{ env.TF_WORKING_DIR }}
 
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false # Skip remote S3 backend setup since we are not deploying to AWS
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
       # 2. VALIDATE SYNTAX (JOCKO'S MANDATE)
       - name: Validate Terraform Syntax
         id: validate
         run: terraform validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-
-      # 3. INITIALIZE BACKEND (Simulated/Local)
-      - name: Terraform Init
-        id: init
-        # Use an external init path for the GitHub runner context
-        run: terraform init -backend=false # Skip remote S3 backend setup since we are not deploying to AWS
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       # 4. RUN PLAN (The core check)
