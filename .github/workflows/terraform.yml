@@ -1,0 +1,63 @@
+name: 01 - Terraform Plan Check
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**.tf'
+      - '.github/workflows/terraform.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**.tf'
+
+env:
+  # Using the folder name you specified where the TF files live:
+  TF_WORKING_DIR: ./infra
+  # Using LocalStack for CI validation, as you don't have AWS credentials configured.
+  # Note: A real pipeline would use secrets.AWS_ACCESS_KEY_ID and secrets.AWS_SECRET_ACCESS_KEY
+  # But for a PLAN, we can often run dry checks, or use LocalStack for validation.
+  # For this exercise, we focus on structure and syntax validation.
+
+jobs:
+  terraform_validate_plan:
+    name: "Terraform Validate & Plan"
+    runs-on: ubuntu-latest
+
+    # This ensures LocalStack starts up if needed for integration (we'll focus on pure TF validation for this first rep)
+    # The crucial part is checking formatting and syntax compliance.
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5 # Lock version as per standards
+
+      # 1. ENFORCE CODE STYLE (CODE-STYLE.MD MANDATE)
+      - name: Check Terraform Formatting (fmt)
+        id: fmt
+        run: terraform fmt -check -recursive
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      # 2. VALIDATE SYNTAX (JOCKO'S MANDATE)
+      - name: Validate Terraform Syntax
+        id: validate
+        run: terraform validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      # 3. INITIALIZE BACKEND (Simulated/Local)
+      - name: Terraform Init
+        id: init
+        # Use an external init path for the GitHub runner context
+        run: terraform init -backend=false # Skip remote S3 backend setup since we are not deploying to AWS
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      # 4. RUN PLAN (The core check)
+      - name: Terraform Plan (Dry Run)
+        id: plan
+        # -input=false prevents interactive prompts
+        # -lock=false prevents issues in a read-only CI environment
+        run: terraform plan -input=false -lock=false -out=tfplan.out
+        working-directory: ${{ env.TF_WORKING_DIR }}
