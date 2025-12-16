@@ -55,4 +55,4 @@ resource "aws_s3_object" "index" {
 
   tags = var.tags
 }
-\n# ci-trigger
+# ci-trigger
